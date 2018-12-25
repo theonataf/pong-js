@@ -80,12 +80,13 @@ var Ball = {
 		};
 	},
 	isTouchingBorder: function() {
-		if ((Ball.y + Ball.vy > positions.height - Ball.radius) || (Ball.y + Ball.vy < Ball.radius)) {
+		if ((Ball.y + Ball.vy < Ball.radius)) {
 		Ball.vy = -Ball.vy;
 		}
 		if ((Ball.x + Ball.vx > positions.width - Ball.radius) || (Ball.x + Ball.vx < Ball.radius)) {
 		Ball.vx = -Ball.vx;
 		}
+		// if (Ball.y + Ball.vy > positions.height - Ball.radius) then game over
 	},
 };
 
@@ -105,25 +106,27 @@ var Bar = {
 	},
 	isTouchingBorder: function() {
 		if ((Bar.x + Bar.vx > positions.width - Bar.width) || (Bar.x + Bar.vx < 0) ) {
-			Bar.vx = -Bar.vx;
+			Bar.vx = 0;
 		};
 	},
 	motion: function() {
 		// must use 'keydown' for arrow keys
+		// tomorrow !!!! on 'keyup' stop the bar 
+		var speed = 17;
 		if (code == 37) {
-			if(this.vx > 0){
-				this.vx = -this.vx;
+			if(speed > 0){
+				this.vx = -speed;
 			}
-			if(this.vx < 0){
-				this.vx = this.vx;
+			if(speed < 0){
+				this.vx = speed;
 			}
 		}
 		if (code == 39) {
-			if(this.vx < 0){
-				this.vx = -this.vx;
+			if(speed < 0){
+				this.vx = -speed;
 			}
-			if(this.vx > 0){
-				this.vx = this.vx;
+			if(speed > 0){
+				this.vx = speed;
 			}
 		}
 	},
