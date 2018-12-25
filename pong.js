@@ -18,21 +18,20 @@ const positions = {
 		ctx.translate(-this.width_center, -this.height_center);
 	}
 }
-
-
-function testDraw() {
-    ctx.beginPath();
-    positions.find_center();
-    ctx.arc(0, 0, positions.width_center/2, 0, Math.PI * 2, true); // Outer circle
-    ctx.moveTo(0, 300);
-    ctx.arc(0, 50, 500, 0, Math.PI, false);  // Mouth (clockwise)
-    ctx.moveTo(65, 65);
-    ctx.arc(60, 65, 5, 0, Math.PI * 2, true);  // Left eye
-    ctx.moveTo(95, 65);
-    ctx.arc(90, 65, 5, 0, Math.PI * 2, true);  // Right eye
-    ctx.stroke();
-    positions.replace_center();
-  }
+var code;
+window.addEventListener('keydown', function(event) {
+		event.preventDefault();
+		code = event.keyCode;
+		// if (code == 37) { // left
+		// 	console.log('left');
+		// } else if (code == 39) { // right
+		// 	console.log('right');
+		// } else if (code == 38) { // up
+		// 	console.log('up');
+		// } else if (code == 40) { // down
+		// 	console.log('down');
+		// }
+});
 
 function grid() {
 	
@@ -78,6 +77,14 @@ var Ball = {
 				&&((this.x + this.vx + this.radius)< (Bar.x + Bar.width)))) {
 			this.vy = -this.vy;
 			console.log('touched');
+		};
+	},
+	isTouchingBorder: function() {
+		if ((Ball.y + Ball.vy > positions.height - Ball.radius) || (Ball.y + Ball.vy < Ball.radius)) {
+		Ball.vy = -Ball.vy;
+		}
+		if ((Ball.x + Ball.vx > positions.width - Ball.radius) || (Ball.x + Ball.vx < Ball.radius)) {
+		Ball.vx = -Ball.vx;
 		}
 	},
 };
@@ -95,7 +102,31 @@ var Bar = {
 		ctx.closePath();
 		ctx.fillStyle = this.color;
 		ctx.fill();
-	}
+	},
+	isTouchingBorder: function() {
+		if ((Bar.x + Bar.vx > positions.width - Bar.width) || (Bar.x + Bar.vx < 0) ) {
+			Bar.vx = -Bar.vx;
+		};
+	},
+	motion: function() {
+		// must use 'keydown' for arrow keys
+		if (code == 37) {
+			if(this.vx > 0){
+				this.vx = -this.vx;
+			}
+			if(this.vx < 0){
+				this.vx = this.vx;
+			}
+		}
+		if (code == 39) {
+			if(this.vx < 0){
+				this.vx = -this.vx;
+			}
+			if(this.vx > 0){
+				this.vx = this.vx;
+			}
+		}
+	},
 };
 
 function play() {
@@ -103,15 +134,9 @@ function play() {
 	grid();
 	Ball.drawBall();
 	Bar.drawBar();
-	if ((Ball.y + Ball.vy > positions.height - Ball.radius) || (Ball.y + Ball.vy < Ball.radius)) {
-		Ball.vy = -Ball.vy;
-	}
-	if ((Ball.x + Ball.vx > positions.width - Ball.radius) || (Ball.x + Ball.vx < Ball.radius)) {
-		Ball.vx = -Ball.vx;
-	}
-	if ((Bar.x + Bar.vx > positions.width - Bar.width) || (Bar.x + Bar.vx < 0) ) {
-		Bar.vx = -Bar.vx;
-	}
+	Bar.motion();
+	Bar.isTouchingBorder();
+	Ball.isTouchingBorder();
 	Ball.isTouchingBar();
 	Ball.x += Ball.vx;
 	Ball.y += Ball.vy;
