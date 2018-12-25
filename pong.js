@@ -60,7 +60,7 @@ function grid() {
 
 var Ball = {
 	x: positions.width_center,
-	y: positions.height - 75,
+	y: positions.height - 80,
 	vx: -6,
 	vy: -6,
 	radius: 25,
@@ -83,11 +83,11 @@ var Ball = {
 };
 
 var Bar = {
-	x: positions.width_center - 75,
-	y: positions.height - 50,
+	x: positions.width_center - 150,
+	y: positions.height - 55,
 	vx: 10,
 	thickness: 25,
-	width: 1200,
+	width: 300,
 	color: 'red',
 	drawBar: function(){
 		ctx.beginPath();
@@ -109,7 +109,7 @@ function play() {
 	if ((Ball.x + Ball.vx > positions.width - Ball.radius) || (Ball.x + Ball.vx < Ball.radius)) {
 		Ball.vx = -Ball.vx;
 	}
-	if ((Bar.x + Bar.vx > positions.width - 150) || (Bar.x + Bar.vx < 0) ) {
+	if ((Bar.x + Bar.vx > positions.width - Bar.width) || (Bar.x + Bar.vx < 0) ) {
 		Bar.vx = -Bar.vx;
 	}
 	Ball.isTouchingBar();
