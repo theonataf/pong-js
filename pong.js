@@ -1,6 +1,11 @@
 var canvas = document.getElementById("pong");
 var ctx = canvas.getContext("2d");
+wholeBrick = new Image();
+touchedBrick = new Image();
+wholeBrick.src = 'images/whole_brick.png';
+touchedBrick.src = 'images/touched_brick.png';
 var raf;
+
 
 var scale = 2;
 canvas.width = 1280 * scale;
@@ -80,6 +85,25 @@ var Game = {
 	status: 'on',
 };
 
+var Brick = {
+	x: this.x, //14*3
+	y: this.y, //5*35
+	//spaceBetween: 3*35,
+	newBrick: wholeBrick,
+	damagedBrick : touchedBrick,
+	bricksPositions: [],
+	drawBrick: function() {
+		for(var i=0; i<nbOfBricks; i++){
+			ctx.drawImage(this.newBrick, this.x+(i*this.spaceBetween),this.y, 3*35, 2*35);
+			this.bricksPositions.push([this.x+(i*this.spaceBetween),this.y]);
+		};
+	},
+	touchedBrick: function() {
+
+	},
+
+};
+
 var Ball = {
 	x: positions.width_center,
 	y: positions.height - 80,
@@ -118,6 +142,9 @@ var Ball = {
 			console.log('gameover');
 			alert('gameover');
 		}
+	},
+	isTouchingBrick: function() {
+
 	},
 };
 
@@ -166,6 +193,7 @@ function play() {
 	grid();
 	Ball.drawBall();
 	Bar.drawBar();
+	Bricks.drawBricks(10);
 	Bar.isTouchingBorder();
 	Bar.motion();
 	Ball.isTouchingBorder();
@@ -181,6 +209,7 @@ function play() {
 
 Ball.drawBall();
 Bar.drawBar();
+Bricks.drawBricks();
 
 if (Game.status == 'gameover') {
 	console.log('score');
