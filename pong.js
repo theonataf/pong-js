@@ -88,18 +88,17 @@ var Game = {
 var Brick = {
 	x: this.x, //14*3
 	y: this.y, //5*35
-	//spaceBetween: 3*35,
+	spaceBetween: 3*35,
+	width: 3*35,
+	height: 2*35,
 	newBrick: wholeBrick,
 	damagedBrick : touchedBrick,
 	bricksPositions: [],
-	drawBrick: function() {
-		for(var i=0; i<nbOfBricks; i++){
-			ctx.drawImage(this.newBrick, this.x+(i*this.spaceBetween),this.y, 3*35, 2*35);
-			this.bricksPositions.push([this.x+(i*this.spaceBetween),this.y]);
-		};
+	drawBrick: function(brickType) {
+		ctx.drawImage(brickType, this.x, this.y, this.width, this.height);
 	},
-	touchedBrick: function() {
-
+	addEventListener: function() {
+		this.bricksPositions.push([this.x,this.y]);
 	},
 
 };
@@ -188,12 +187,15 @@ var Bar = {
 	},
 };
 
+// il faudrait avoir un array de position où y'a des brick pour pouvoir bien les dessiner à chaque fois
+// faire une array avec une boucle et au fur et à mesure faire sauter des positions
+
 function play() {
 	ctx.clearRect(0,0, positions.width, positions.height);
 	grid();
 	Ball.drawBall();
 	Bar.drawBar();
-	Bricks.drawBricks(10);
+	drawBricks(14*35, 5*35, 2, 10 );
 	Bar.isTouchingBorder();
 	Bar.motion();
 	Ball.isTouchingBorder();
@@ -203,13 +205,25 @@ function play() {
 	raf = window.requestAnimationFrame(play);
 }
 
-
+function drawBricks(startX, startY, rows, columns) {
+	Brick.x = startX - (2*Brick.width);
+	Brick.y = startY;
+	for (var i = 0; i<rows ;i++ ) {
+		for(var j=0; j<columns; j++){
+			Brick.x += Brick.spaceBetween;
+			Brick.addEventListener();
+			Brick.drawBrick(Brick.newBrick)
+		}
+		Brick.y += Brick.height;
+		Brick.x -= (Brick.width*columns);
+	}
+}
 
 
 
 Ball.drawBall();
 Bar.drawBar();
-Bricks.drawBricks();
+Brick.drawBrick(Brick.newBrick);
 
 if (Game.status == 'gameover') {
 	console.log('score');
