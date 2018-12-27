@@ -85,24 +85,26 @@ var Game = {
 	status: 'on',
 };
 
-var Brick = {
-	x: this.x, //14*3
-	y: this.y, //5*35
-	spaceBetween: 3*35,
-	width: 3*35,
-	height: 2*35,
-	newBrick: wholeBrick,
-	damagedBrick : touchedBrick,
-	bricksPositions: [],
-	drawBrick: function(brickType) {
+function Brick() {
+	this.x= null; //14*3
+	this.y= null; //5*35
+	this.spaceBetween= 3*35;
+	this.width= 3*35;
+	this.height= 2*35;
+	this.newBrick= wholeBrick;
+	this.damagedBrick = touchedBrick;
+	this.bricksPositions= [];
+	this.drawBrick= function(brickType) {
 		ctx.drawImage(brickType, this.x, this.y, this.width, this.height);
-	},
-	addEventListener: function() {
-		this.bricksPositions.push([this.x,this.y]);
-	},
+	};
+	this.addEventListener= function() {
+		this.bricksPositions.push( {x: this.x,
+									y: this.y});
+	};
 
 };
 
+var bricks = [];
 var Ball = {
 	x: positions.width_center,
 	y: positions.height - 80,
@@ -143,8 +145,22 @@ var Ball = {
 		}
 	},
 	isTouchingBrick: function() {
+		for (var i = 0; i < bricks.length; i++) {
+			var brick = bricks[i];
+			if (((this.y + this.vy) >= (brick.y - this.radius - brick.height/2))
+				&&(((this.x + this.vx - this.radius) > brick.x)
+				&&((this.x + this.vx + this.radius)< (brick.x + brick.width))
+				&&((this.y + this.vy) <= (brick.y +this.radius + brick.height)))) {
+				this.vy = -this.vy;
+				bricks[i] = brick.drawBrick(brick.damagedBrick);
+			}
+		// for (var i = 0; i<Brick.bricksPositions.length -1 ; i++){
+		// 	if (this.x + this.vx > Brick.bricksPositions[i][x]){}
+		// }
+		}
+	}
 
-	},
+	
 };
 
 var Bar = {
@@ -195,27 +211,32 @@ function play() {
 	grid();
 	Ball.drawBall();
 	Bar.drawBar();
-	drawBricks(14*35, 5*35, 2, 10 );
+	drawBricks(14*35, 6*35, 2, 10 );
 	Bar.isTouchingBorder();
 	Bar.motion();
 	Ball.isTouchingBorder();
 	Ball.isTouchingBar();
+	Ball.isTouchingBrick();
 	Ball.x += Ball.vx;
 	Ball.y += Ball.vy;
 	raf = window.requestAnimationFrame(play);
 }
 
 function drawBricks(startX, startY, rows, columns) {
-	Brick.x = startX - (2*Brick.width);
-	Brick.y = startY;
+
+	// Brick.x = startX - (Brick.width);
+	// Brick.y = startY;
 	for (var i = 0; i<rows ;i++ ) {
 		for(var j=0; j<columns; j++){
-			Brick.x += Brick.spaceBetween;
-			Brick.addEventListener();
-			Brick.drawBrick(Brick.newBrick)
+			var brick = new Brick();
+			brick.x = startX - brick.width + (j * brick.spaceBetween);
+			brick.y = startY + brick.height + (i * brick.height);
+			brick.addEventListener();
+			brick.drawBrick(brick.newBrick);
+			bricks.push(brick);
 		}
-		Brick.y += Brick.height;
-		Brick.x -= (Brick.width*columns);
+		// Brick.y += Brick.height;
+		// Brick.x -= (Brick.width*columns);
 	}
 }
 
@@ -223,7 +244,7 @@ function drawBricks(startX, startY, rows, columns) {
 
 Ball.drawBall();
 Bar.drawBar();
-Brick.drawBrick(Brick.newBrick);
+//Brick.drawBrick(Brick.newBrick);
 
 if (Game.status == 'gameover') {
 	console.log('score');
