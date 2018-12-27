@@ -192,8 +192,10 @@ var Ball = {
 			var brick = bricks[i];
 			if (this.isThouchingTop(brick) || this.isTouchingBottom(brick)) {
 				this.vy= -this.vy;
-				console.log('touched')
+				console.log('touched');
+				console.log(brick.touched);
 				brick.touched += 1;
+				console.log(brick.touched)
 				if (brick.touched > 1) {
 					bricks.splice(i, 1);
 				}
