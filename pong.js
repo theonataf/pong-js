@@ -86,7 +86,7 @@ var Game = {
 };
 
 function Brick() {
-	this.x= null; //14*3
+	this.x= null; //14*35
 	this.y= null; //5*35
 	this.spaceBetween= 3*35;
 	this.width= 3*35;
@@ -125,8 +125,16 @@ var Ball = {
 	isTouchingBar: function() {
 		if (((this.y + this.vy) >= (Bar.y - this.radius))
 				&&(((this.x + this.vx - this.radius) > Bar.x)
-				&&((this.x + this.vx + this.radius)< (Bar.x + Bar.width)))) {
-			this.vy = -this.vy;
+				&&((this.x + this.vx + this.radius)< (Bar.x + Bar.width/2)))) {
+			this.vy = -10;
+			this.vx = -10;
+			console.log('touched');
+		};
+		if (((this.y + this.vy) >= (Bar.y - this.radius))
+				&&(((this.x + this.vx - this.radius) > Bar.x)
+				&&((this.x + this.vx + this.radius)> (Bar.x + Bar.width/2)))) {
+			this.vy = -10;
+			this.vx = 10;
 			console.log('touched');
 		};
 	},
@@ -149,8 +157,8 @@ var Ball = {
 	},
 	isTouchingBottom: function(brick) {
 		var doesIt = false;
-		if (((this.x + this.vx - this.radius) > brick.x)
-			&& ((this.x + this.vx - this.radius) < (brick.x + brick.width))
+		if (((this.x + this.vx + this.radius) > brick.x)
+			&& ((this.x + this.vx + this.radius) < (brick.x + brick.width))
 			&& ((this.y + this.vy - this.radius) < (brick.y + brick.height/2))
 			&& ((this.y + this.vy - this.radius) > (brick.y))) {
 			doesIt = true;
@@ -271,7 +279,7 @@ function play() {
 	Ball.isTouchingBrick();
 	Ball.x += Ball.vx;
 	Ball.y += Ball.vy;
-	raf = window.requestAnimationFrame(play);
+	window.requestAnimationFrame(play);
 }
 
 function drawBricks(startX, startY, rows, columns) {
