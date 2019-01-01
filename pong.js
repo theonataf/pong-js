@@ -304,7 +304,7 @@ function drawBrickArray() {
 }
 Ball.drawBall();
 Bar.drawBar();
-drawBricks(14*35, 6*35, 3, 20 );
+drawBricks(5*35, 6*35, 4, 20 );
 
 
 if (Game.status == 'gameover') {
