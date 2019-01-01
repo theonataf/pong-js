@@ -1,6 +1,11 @@
 var canvas = document.getElementById("pong");
 var ctx = canvas.getContext("2d");
+wholeBrick = new Image();
+touchedBrick = new Image();
+wholeBrick.src = 'images/whole_brick.png';
+touchedBrick.src = 'images/touched_brick.png';
 var raf;
+
 
 var scale = 2;
 canvas.width = 1280 * scale;
@@ -80,6 +85,29 @@ var Game = {
 	status: 'on',
 };
 
+function Brick() {
+	this.x= null; //14*35
+	this.y= null; //5*35
+	this.spaceBetween= 3*35;
+	this.width= 3*35;
+	this.height= 2*35;
+	this.brickType= null;
+	this.newBrick= wholeBrick;
+	this.damagedBrick = touchedBrick;
+	this.touched = 0;
+	this.drawBrick= function() {
+		if (this.touched == 0){
+			ctx.drawImage(this.newBrick, this.x, this.y, this.width, this.height);
+		} else if (this.touched == 1){
+			ctx.drawImage(this.damagedBrick, this.x, this.y, this.width, this.height);
+		};
+	};
+
+};
+
+var bricks = [];
+
+
 var Ball = {
 	x: positions.width_center,
 	y: positions.height - 80,
@@ -97,8 +125,16 @@ var Ball = {
 	isTouchingBar: function() {
 		if (((this.y + this.vy) >= (Bar.y - this.radius))
 				&&(((this.x + this.vx - this.radius) > Bar.x)
-				&&((this.x + this.vx + this.radius)< (Bar.x + Bar.width)))) {
-			this.vy = -this.vy;
+				&&((this.x + this.vx + this.radius)< (Bar.x + Bar.width/2)))) {
+			this.vy = -10;
+			this.vx = -10;
+			console.log('touched');
+		};
+		if (((this.y + this.vy) >= (Bar.y - this.radius))
+				&&(((this.x + this.vx - this.radius) > Bar.x)
+				&&((this.x + this.vx + this.radius)> (Bar.x + Bar.width/2)))) {
+			this.vy = -10;
+			this.vx = 10;
 			console.log('touched');
 		};
 	},
@@ -119,6 +155,72 @@ var Ball = {
 			alert('gameover');
 		}
 	},
+	isTouchingBottom: function(brick) {
+		var doesIt = false;
+		if (((this.x + this.vx + this.radius) > brick.x)
+			&& ((this.x + this.vx + this.radius) < (brick.x + brick.width))
+			&& ((this.y + this.vy - this.radius) < (brick.y + brick.height/2))
+			&& ((this.y + this.vy - this.radius) > (brick.y))) {
+			doesIt = true;
+		}
+		return doesIt;
+	},
+	isThouchingTop: function(brick) {
+		var doesIt = false;
+		if (((this.x + this.vx + this.radius) > brick.x)
+			&& ((this.x + this.vx + this.radius) < (brick.x + brick.width))
+			&& ((this.y + this.vy + this.radius) > (brick.y - brick.height/2))
+			&& ((this.y + this.vy + this.radius) < (brick.y))) {
+			doesIt = true;
+		}
+		return doesIt;
+	},
+	isTouchingLeftBorder: function(brick) {
+		var doesIt = false;
+		if (((this.y + this.vy + this.radius) > (brick.y - brick.height/2))
+			&& ((this.y + this.vy + this.radius) < (brick.y + brick.height/2))
+			&& ((this.x + this.vx + this.radius) > (brick.x))
+			&& ((this.x + this.vx + this.radius) < (brick.x + brick.width/2))) {
+			doesIt = true;
+		}
+		return doesIt;
+	},
+	isTouchingRightBorder: function(brick) {
+		var doesIt = false;
+		if (((this.y + this.vy - this.radius) > (brick.y - brick.height/2))
+			&& ((this.y + this.vy - this.radius) < (brick.y + brick.height/2))
+			&& ((this.x + this.vx - this.radius) < (brick.x + brick.width))
+			&& ((this.x + this.vx - this.radius) > (brick.x + brick.width/2))) {
+			doesIt = true;
+		}
+		return doesIt;
+	},
+	isTouchingBrick: function() {
+		for (var i = 0; i < bricks.length; i++) {
+			var brick = bricks[i];
+			if (this.isThouchingTop(brick) || this.isTouchingBottom(brick)) {
+				this.vy= -this.vy;
+				console.log('touched');
+				console.log(brick.touched);
+				brick.touched += 1;
+				console.log(brick.touched)
+				if (brick.touched > 1) {
+					bricks.splice(i, 1);
+				}
+			};
+			if (this.isTouchingLeftBorder(brick) || this.isTouchingRightBorder(brick)) {
+				this.vx = -this.vx;
+				brick.touched += 1;
+				if (brick.touched > 1) {
+					bricks.splice(i, 1);
+					console.log('hello');
+				};
+			};
+	
+		}
+	},
+
+	
 };
 
 var Bar = {
@@ -161,26 +263,49 @@ var Bar = {
 	},
 };
 
+// il faudrait avoir un array de position où y'a des brick pour pouvoir bien les dessiner à chaque fois
+// faire une array avec une boucle et au fur et à mesure faire sauter des positions
+
 function play() {
 	ctx.clearRect(0,0, positions.width, positions.height);
 	grid();
 	Ball.drawBall();
 	Bar.drawBar();
+	drawBrickArray();
 	Bar.isTouchingBorder();
 	Bar.motion();
 	Ball.isTouchingBorder();
 	Ball.isTouchingBar();
+	Ball.isTouchingBrick();
 	Ball.x += Ball.vx;
 	Ball.y += Ball.vy;
-	raf = window.requestAnimationFrame(play);
+	window.requestAnimationFrame(play);
 }
 
+function drawBricks(startX, startY, rows, columns) {
 
+	for (var i = 0; i<rows ;i++ ) {
+		for(var j=0; j<columns; j++){
+			var brick = new Brick();
+			brick.x = startX - brick.width + (j * brick.spaceBetween);
+			brick.y = startY + brick.height + (i * brick.height);
+			brick.drawBrick(brick.newBrick);
+			bricks.push(brick);
+		}
+	}
+}
 
-
-
+function drawBrickArray() {
+	var brick = new Brick()
+	for (var i=0; i< bricks.length; i ++) {
+		brick = bricks[i];
+		brick.drawBrick();
+	}
+}
 Ball.drawBall();
 Bar.drawBar();
+drawBricks(5*35, 6*35, 4, 20 );
+
 
 if (Game.status == 'gameover') {
 	console.log('score');
